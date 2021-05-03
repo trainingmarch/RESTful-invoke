@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<flow name="restful-apiFlow" doc:id="26186c1e-cbc2-47c5-99aa-f5a729c36cfa" >
+		<http:listener doc:name="Listener" doc:id="e642398a-46f5-445d-8aec-7b5ad4b847ea" config-ref="HTTP_Listener_config" path="/getUserDetails"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b4f03e9d-35a8-4e11-961b-67e85a4ef163" message="Get user detail api started"/>
+		<set-variable doc:name="Set Variable" doc:id="7e7ad8cb-5f78-4e95-88e7-0f416ff4ca1b" variableName="uid" value="#[attributes.queryParams.id]"/>
+		<http:request method="GET" doc:name="Request" doc:id="660bb620-84fe-4adc-b6f9-63835b4d0653" config-ref="HTTP_Request_configuration" url="#['https://reqres.in/api/users/' ++ vars.uid as String]"/>
+		<ee:transform doc:name="Transform Message" doc:id="527ce4e6-fbeb-4c24-966d-00fbce622eeb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.data.id,
+	firstName: payload.data.first_name,
+	lastName: payload.data.last_name,
+	email: payload.data.email
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
